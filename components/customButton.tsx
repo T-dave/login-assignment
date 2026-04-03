@@ -4,16 +4,20 @@ interface ButtonProp extends ViewProps {
   color?: string;
   onPress: () => void;
   children: React.ReactNode;
+  disabled?: boolean;
+  size?: number;
 }
 export default function Button({
   color,
   style,
+  size,
   onPress,
   children,
+  disabled = false
 }: ButtonProp) {
   return (
-    <TouchableOpacity style={[styles.button, style]} onPress={onPress}>
-      <Text style={[styles.buttonText]}>{children}</Text>
+    <TouchableOpacity style={[styles.button, {backgroundColor: disabled ? "#FF000044" : "#FF0000"}, style]} onPress={onPress} disabled={disabled}>
+      <Text style={[styles.buttonText, {fontSize: size || 20}]}>{children}</Text>
     </TouchableOpacity>
   );
 }
@@ -29,7 +33,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: "#FFF",
-    fontSize: 20,
     fontWeight: "600",
   },
 });

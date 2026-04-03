@@ -1,28 +1,41 @@
 import Input from "@/components/customInput";
 import { useState } from "react";
-import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TouchableWithoutFeedback, Text, View } from "react-native";
+import { Keyboard, KeyboardAvoidingView, Platform, StyleSheet, TouchableWithoutFeedback, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Button from "@/components/customButton";
+import UserInfo from "@/components/userInfo";
 
 export default function LogIn() {
-const [formValid, setFormValid] = useState(false);
+const [submitted, setSubmitted] = useState(false);
+const [form, setForm] = useState({
+    email: "",
+    emailError:"",
+    password:"",
+    passwordError:""
+})
 
-  const [email, setEmail] = useState("");
-  const [emailValid, setEmailValid] = useState(false);
 
-  const [password, setPassword] = useState("");
-
-  
   const validatEmail = (text:string)=>{
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if(emailRegex.test(text)) setEmailValid(true);
-    else setEmailValid(false);
+    return emailRegex.test(text);
+  }
+  const validatePassword = (text:string)=>{
+    return text.length > 0;
   }
 
   const handleSubmit = ()=>{
-    validatEmail(email);
-    if(emailValid) setFormValid(true);
-    else setFormValid(false);
+    if(submitted){
+        setForm({
+            email: "",
+            emailError:"",
+            password:"",
+            passwordError:""
+        });
+        setSubmitted(false);
+    }else{
+        if(form.emailError.length > 0 && form.passwordError.length > 0) setSubmitted(false);
+        else setSubmitted(true);
+    }
   }
 
 
@@ -32,19 +45,32 @@ const [formValid, setFormValid] = useState(false);
             <View style={{flex:1, justifyContent:'space-between'}}>
                 <View/>
                 <KeyboardAvoidingView style={styles.keyboardContainer} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-                    <Input label={"Email"} setText={setEmail} placeholder="example@gmail.com" valid={emailValid} validate={validatEmail}/>
-                    <Input label={"Password"} setText={setPassword} placeholder="Input Password"/>
+                    <Input 
+                    label={"Email"} 
+                    form={form}
+                    setForm={setForm}
+                    placeholder="example@gmail.com" 
+                    validate={validatEmail}
+                    error={"Invalid email address"}
+                    />
+                    <Input 
+                    label={"Password"} 
+                    form={form}
+                    setForm={setForm}
+                    placeholder="Input Password" 
+                    validate={validatePassword} 
+                    error={"Enter your password"}
+                    />
                 </KeyboardAvoidingView>
                 <View>
                     {
-                        formValid &&
-                        <View>
-                            <Text>Email:{email}</Text>
-                            <Text>Password:{password}</Text>
-                        </View>
+                        submitted &&
+                        <UserInfo email={form.email} password={form.password}/>
                     }
-                    <Button onPress={handleSubmit}>
-                        Submit
+                    <Button onPress={handleSubmit} disabled={!validatEmail(form.email) || !validatePassword(form.password)}>
+                        {
+                            submitted ? "Clear" : "Submit"
+                        }
                     </Button>
                 </View>
             </View>
@@ -59,7 +85,8 @@ const styles = StyleSheet.create({
         flex:1,
         padding:10,
         paddingBottom:20,
-        justifyContent:'space-between'
+        justifyContent:'space-between',
+        backgroundColor:"#FFF"
     },
     keyboardContainer:{
         justifyContent:'center',
